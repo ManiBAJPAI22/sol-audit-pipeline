@@ -2,6 +2,21 @@
 
 Drop-in smart contract audit pipeline for Foundry projects. One command scaffolds a complete CI/CD setup with static analysis, coverage, gas reporting, and consolidated audit summaries posted as PR comments.
 
+## Support
+
+If this saved you time, consider:
+
+- ⭐ **[Starring the repo](https://github.com/ManiBAJPAI22/sol-audit-pipeline)** — helps others find it
+- 🍴 **[Forking](https://github.com/ManiBAJPAI22/sol-audit-pipeline/fork)** — customize the templates for your team's conventions and point your projects at your fork via `AUDIT_PIPELINE_REPO` env var:
+```bash
+  AUDIT_PIPELINE_REPO=https://raw.githubusercontent.com/YourUser/sol-audit-pipeline/main \
+    curl -fsSL $AUDIT_PIPELINE_REPO/install.sh | bash
+```
+- 🐛 **[Opening an issue](https://github.com/ManiBAJPAI22/sol-audit-pipeline/issues/new)** — bug reports and feature requests welcome
+- 📣 **Sharing** — if you use this on a project, a mention in your repo's README helps the tool grow
+
+---
+
 ## What you get
 
 **Local pipeline** (`make audit`):
