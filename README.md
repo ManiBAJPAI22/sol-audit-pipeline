@@ -1,4 +1,5 @@
-# sol-audit-pipeline
+# sol-audit-pipeline  
+v0.1.0
 
 Drop-in smart contract audit pipeline for Foundry projects. One command scaffolds a complete CI/CD setup with static analysis, coverage, gas reporting, and consolidated audit summaries posted as PR comments.
 
