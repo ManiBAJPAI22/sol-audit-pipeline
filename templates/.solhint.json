@@ -1,0 +1,11 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "compiler-version": ["error", "^{{SOLC_VERSION}}"],
+    "func-visibility": ["warn", { "ignoreConstructors": true }],
+    "no-console": "off",
+    "no-global-import": "warn",
+    "import-path-check": "off",
+    "use-natspec": "off"
+  }
+}
