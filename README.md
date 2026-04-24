@@ -87,6 +87,90 @@ Outputs land in `reports/`:
 - `gas.txt` — gas usage report
 - `summary.md` — consolidated markdown (aggregates all of the above)
 
+## Enabling Medusa fuzzing
+
+`make fuzz` (and the nightly CI job) are opt-in. With no config present, the Makefile prints `skipping fuzz: …` and exits cleanly. To activate fuzzing, add two files to your project:
+
+**1. `medusa.json`** — Medusa runtime config. Minimal shape:
+
+```json
+{
+  "fuzzing": {
+    "workers": 6,
+    "timeout": 600,
+    "testLimit": 50000,
+    "callSequenceLength": 100,
+    "corpusDirectory": "corpus",
+    "coverageEnabled": true,
+    "targetContracts": ["YourInvariants"],
+    "deployerAddress": "0x30000",
+    "senderAddresses": ["0x10000", "0x20000", "0x30000"],
+    "testing": {
+      "assertionTesting": { "enabled": true, "testViewMethods": false },
+      "propertyTesting": {
+        "enabled": true,
+        "testPrefixes": ["invariant_", "property_"]
+      }
+    },
+    "chainConfig": {
+      "codeSizeCheckDisabled": true,
+      "cheatCodes": { "cheatCodesEnabled": true, "enableFFI": false }
+    }
+  },
+  "compilation": {
+    "platform": "crytic-compile",
+    "platformConfig": {
+      "target": ".",
+      "solcVersion": "",
+      "args": ["--foundry-compile-all"]
+    }
+  },
+  "logging": { "level": "info", "logDirectory": "" }
+}
+```
+
+Key knobs: `targetContracts` (the harness Medusa drives), `testLimit` / `timeout` (stopping conditions), `workers` (parallelism), `testPrefixes` (function-name prefixes Medusa treats as invariants).
+
+**2. `test/invariants/YourInvariants.sol`** — harness contract. Deploys your system in its constructor, exposes `handler_*` functions Medusa calls with random args, and `invariant_*` / `property_*` predicates that must hold between every call.
+
+Skeleton:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.28;
+
+import { Vm } from "forge-std/Vm.sol";
+import { YourToken } from "../../src/YourToken.sol";
+
+contract YourInvariants {
+    Vm internal constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
+
+    YourToken internal token;
+    uint256 internal initialSupply;
+
+    constructor() {
+        token = new YourToken();
+        initialSupply = token.totalSupply();
+    }
+
+    // Medusa calls handlers with random args — bound them to sensible ranges.
+    function handler_transfer(address to, uint256 amount) public {
+        amount = amount % token.balanceOf(address(this));
+        if (amount == 0 || to == address(0)) return;
+        token.transfer(to, amount);
+    }
+
+    // Predicates checked between every handler call. Return false = invariant broken.
+    function invariant_totalSupplyConstant() public view returns (bool) {
+        return token.totalSupply() == initialSupply;
+    }
+}
+```
+
+Cheatcodes available under `vm.*` include `sign`, `prank`, `warp`, `addr` — enough to fuzz EIP-712 signed flows, time-based logic, and multi-caller scenarios.
+
+Once both files exist, `make fuzz` runs Medusa; otherwise it skips.
+
 ## Make targets
 
 | Target | What it does |

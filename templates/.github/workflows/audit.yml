@@ -22,10 +22,13 @@ jobs:
         with: { node-version: '20' }
 
       - name: Install audit tools
+        # Versions pinned for deterministic CI. Bump here when you've validated a newer
+        # version locally — floating `@latest` causes silent drift when a tool releases
+        # breaking changes.
         run: |
-          pipx install slither-analyzer solc-select
+          pipx install 'slither-analyzer==0.10.4' 'solc-select==1.0.4'
           solc-select install {{SOLC_VERSION}} && solc-select use {{SOLC_VERSION}}
-          npm i -g solhint @cyfrin/aderyn
+          npm i -g 'solhint@5.0.3' '@cyfrin/aderyn@0.1.9'
 
       - run: make audit
 
@@ -58,5 +61,6 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - uses: actions/setup-go@v5
         with: { go-version: '1.22' }
-      - run: go install github.com/crytic/medusa@latest
+      # Medusa pinned for the same reason as the main job's tools.
+      - run: go install github.com/crytic/medusa@v0.1.5
       - run: make fuzz

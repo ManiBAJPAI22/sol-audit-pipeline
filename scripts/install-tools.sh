@@ -22,21 +22,22 @@ brew install pipx rust yarn go node 2>/dev/null || true
 pipx ensurepath
 
 cyan "-> slither + halmos + solc-select"
-pipx install slither-analyzer 2>/dev/null || pipx upgrade slither-analyzer
+# Versions match the CI workflow — keep these two files in sync when bumping.
+pipx install 'slither-analyzer==0.10.4' 2>/dev/null || pipx upgrade slither-analyzer
 pipx install halmos 2>/dev/null || pipx upgrade halmos
-pipx install solc-select 2>/dev/null || true
+pipx install 'solc-select==1.0.4' 2>/dev/null || true
 
 cyan "-> default solc 0.8.28"
 solc-select install 0.8.28 && solc-select use 0.8.28
 
 cyan "-> aderyn"
-npm i -g @cyfrin/aderyn
+npm i -g '@cyfrin/aderyn@0.1.9'
 
 cyan "-> solhint"
-npm i -g solhint
+npm i -g 'solhint@5.0.3'
 
 cyan "-> medusa"
-go install github.com/crytic/medusa@latest
+go install github.com/crytic/medusa@v0.1.5
 
 echo ""
 green "all tools installed."
